@@ -18,3 +18,6 @@ the curly braces "}" and "｝".
 ## Usage
 `mdruby [input_file]`. This tool prints to standard output; it is recommended to 
 use standard output redirection.
+
+## License
+MIT License. See "LICENSE" file.
