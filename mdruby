@@ -1,0 +1,55 @@
+#! /usr/bin/python3
+# -*- coding: utf-8 -*-
+import re
+import sys
+import os
+import codecs
+
+ruby_base_re = re.compile(u'[\[（【(]([\u4e00-\u9fff\u3040-\u30ff]+)[\]）】)]', flags=re.UNICODE)
+ruby_anno_re = re.compile(u'[{｛]([^}｝]+)[}｝]', flags=re.UNICODE)
+
+def main(argv):
+    in_f = None
+    if argv and argv[0] == '-h':
+        help()
+    elif argv:
+        try:
+            in_f = open(argv[0], 'r', encoding='utf-8')
+        except IOError:
+            print('Invalid file name: ', argv[0])
+            sys.exit(1)
+    else:
+        help()
+    text = in_f.read()
+    print(transform(text))
+
+def help():
+    print('Usage: mdruby [infile]\n',
+          '"mdruby -h" displays this message')
+    sys.exit(0)
+
+def transform(text):
+    return _transform_ruby_anno(_transform_ruby_base(text))
+
+def _transform_ruby_base(text):
+    match = ruby_base_re.finditer(text)
+    base_texts = []
+    for m in match:
+        base_texts.append(m.group(1))
+    if base_texts:
+        for base_text in base_texts:
+            text = ruby_base_re.sub(u'<ruby><rb>' + base_text + u'</rb>', text, 1)
+    return text
+
+def _transform_ruby_anno(text):
+    match = ruby_anno_re.finditer(text)
+    anno_texts = []
+    for m in match:
+        anno_texts.append(m.group(1))
+    if anno_texts:
+        for aano_text in anno_texts:
+            text = ruby_anno_re.sub(u'<rp>(</rp><rt>' + aano_text + u'</rt><rp>)</rp></ruby>', text, 1)
+    return text
+
+if __name__ == '__main__':
+    main(sys.argv[1:])
