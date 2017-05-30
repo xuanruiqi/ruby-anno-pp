@@ -5,8 +5,7 @@ import sys
 import os
 import codecs
 
-ruby_base_re = re.compile(u'[\[（【(]([\u4e00-\u9fff\u3040-\u30ff]+)[\]）】)]', flags=re.UNICODE)
-ruby_anno_re = re.compile(u'[{｛]([^}｝]+)[}｝]', flags=re.UNICODE)
+ruby_re = re.compile('[\[（【(]([\u4e00-\u9fff\u3040-\u30ff]+)[\]）】)][{｛]([^}｝]+)[}｝]', flags=re.UNICODE)
 
 def main(argv):
     in_f = None
@@ -29,26 +28,17 @@ def help():
     sys.exit(0)
 
 def transform(text):
-    return _transform_ruby_anno(_transform_ruby_base(text))
-
-def _transform_ruby_base(text):
-    match = ruby_base_re.finditer(text)
-    base_texts = []
+    match = ruby_re.finditer(text)
+    base_texts, anno_texts = [], []
     for m in match:
         base_texts.append(m.group(1))
+        anno_texts.append(m.group(2))
     if base_texts:
-        for base_text in base_texts:
-            text = ruby_base_re.sub(u'<ruby><rb>' + base_text + u'</rb>', text, 1)
-    return text
-
-def _transform_ruby_anno(text):
-    match = ruby_anno_re.finditer(text)
-    anno_texts = []
-    for m in match:
-        anno_texts.append(m.group(1))
-    if anno_texts:
-        for aano_text in anno_texts:
-            text = ruby_anno_re.sub(u'<rp>(</rp><rt>' + aano_text + u'</rt><rp>)</rp></ruby>', text, 1)
+        for base_text, anno_text in zip(base_texts, anno_texts) :
+            text = ruby_re.sub('<ruby><rb>' + base_text + 
+                               '</rb><rp>(</rp><rt>' + 
+                               anno_text + 
+                               '</rt><rp>)</rp></ruby>', text, 1)
     return text
 
 if __name__ == '__main__':

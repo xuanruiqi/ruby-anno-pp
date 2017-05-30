@@ -16,7 +16,7 @@ preprocesssor will fail. Annotation can contain anything, but of course except f
 the curly braces "}" and "｝".
 
 ## Usage
-`mdruby [input_file]`. This tool prints to standard output; it is recommended to 
+`./mdruby [input_file]`. This tool prints to standard output; it is recommended to 
 use standard output redirection.
 
 ## License
